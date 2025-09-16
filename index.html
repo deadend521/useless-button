@@ -346,11 +346,14 @@
             document.getElementById('clickCount').textContent = clickCount;
             document.getElementById('dailyCount').textContent = dailyCount;
             
+            // Update global counters
+            updateGlobalCounters();
+            
             // Random chance for rickroll (1 in 50 for demo purposes, you can adjust)
             if (Math.random() < 0.02) {
                 // Rickroll time!
                 document.getElementById('modalMessage').innerHTML = 
-                    'LAUNCH INITIATED...<br><br><iframe width="280" height="157" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" frameborder="0" allowfullscreen></iframe>';
+                    'LAUNCH INITIATED...<br><br><iframe width="280" height="157" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
             } else {
                 document.getElementById('modalMessage').textContent = 'USELESS';
             }
@@ -372,17 +375,51 @@
         
         // Load click count from memory and check for daily reset
         window.onload = function() {
-            // In a real implementation, you might want to fetch this from a server
-            clickCount = Math.floor(Math.random() * 1337) + 42; // Random starting number for demo
-            dailyCount = Math.floor(Math.random() * 89) + 1; // Random daily count for demo
             lastResetDate = getTodaysDate();
-            
             checkDailyReset();
-            document.getElementById('clickCount').textContent = clickCount;
-            document.getElementById('dailyCount').textContent = dailyCount;
+            
+            // Load global counters from CountAPI (free counter service)
+            loadGlobalCounters();
             
             // Set up midnight reset check (runs every minute to catch the transition)
             setInterval(checkDailyReset, 60000);
+        }
+        
+        async function loadGlobalCounters() {
+            try {
+                // Load total counter
+                const totalResponse = await fetch('https://api.countapi.xyz/get/uselessbutton/total');
+                const totalData = await totalResponse.json();
+                clickCount = totalData.value || 0;
+                document.getElementById('clickCount').textContent = clickCount;
+                
+                // Load daily counter with today's date as key
+                const today = getTodaysDate().replace(/\s/g, '');
+                const dailyResponse = await fetch(`https://api.countapi.xyz/get/uselessbutton/daily-${today}`);
+                const dailyData = await dailyResponse.json();
+                dailyCount = dailyData.value || 0;
+                document.getElementById('dailyCount').textContent = dailyCount;
+            } catch (error) {
+                console.log('Counter API not available, using local counts');
+                // Fallback to demo numbers if API fails
+                clickCount = Math.floor(Math.random() * 1337) + 42;
+                dailyCount = Math.floor(Math.random() * 89) + 1;
+                document.getElementById('clickCount').textContent = clickCount;
+                document.getElementById('dailyCount').textContent = dailyCount;
+            }
+        }
+        
+        async function updateGlobalCounters() {
+            try {
+                // Update total counter
+                await fetch('https://api.countapi.xyz/hit/uselessbutton/total');
+                
+                // Update daily counter
+                const today = getTodaysDate().replace(/\s/g, '');
+                await fetch(`https://api.countapi.xyz/hit/uselessbutton/daily-${today}`);
+            } catch (error) {
+                console.log('Could not update global counters');
+            }
         }
     </script>
 </body>
