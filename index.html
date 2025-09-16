@@ -363,6 +363,8 @@
         
         function closeModal() {
             document.getElementById('uselessModal').style.display = 'none';
+            // Stop any playing videos by clearing the modal content
+            document.getElementById('modalMessage').textContent = 'USELESS';
         }
         
         // Close modal when clicking outside of it
@@ -370,6 +372,8 @@
             let modal = document.getElementById('uselessModal');
             if (event.target == modal) {
                 modal.style.display = 'none';
+                // Stop any playing videos by clearing the modal content
+                document.getElementById('modalMessage').textContent = 'USELESS';
             }
         }
         
@@ -388,17 +392,21 @@
         async function loadGlobalCounters() {
             try {
                 // Load total counter
-                const totalResponse = await fetch('https://api.countapi.xyz/get/uselessbutton/total');
+                const totalResponse = await fetch('https://api.countapi.xyz/get/uselessbutton.net/total');
                 const totalData = await totalResponse.json();
-                clickCount = totalData.value || 0;
-                document.getElementById('clickCount').textContent = clickCount;
+                if (totalData.value !== undefined) {
+                    clickCount = totalData.value;
+                    document.getElementById('clickCount').textContent = clickCount;
+                }
                 
                 // Load daily counter with today's date as key
-                const today = getTodaysDate().replace(/\s/g, '');
-                const dailyResponse = await fetch(`https://api.countapi.xyz/get/uselessbutton/daily-${today}`);
+                const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                const dailyResponse = await fetch(`https://api.countapi.xyz/get/uselessbutton.net/daily-${today}`);
                 const dailyData = await dailyResponse.json();
-                dailyCount = dailyData.value || 0;
-                document.getElementById('dailyCount').textContent = dailyCount;
+                if (dailyData.value !== undefined) {
+                    dailyCount = dailyData.value;
+                    document.getElementById('dailyCount').textContent = dailyCount;
+                }
             } catch (error) {
                 console.log('Counter API not available, using local counts');
                 // Fallback to demo numbers if API fails
@@ -412,11 +420,11 @@
         async function updateGlobalCounters() {
             try {
                 // Update total counter
-                await fetch('https://api.countapi.xyz/hit/uselessbutton/total');
+                await fetch('https://api.countapi.xyz/hit/uselessbutton.net/total');
                 
                 // Update daily counter
-                const today = getTodaysDate().replace(/\s/g, '');
-                await fetch(`https://api.countapi.xyz/hit/uselessbutton/daily-${today}`);
+                const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                await fetch(`https://api.countapi.xyz/hit/uselessbutton.net/daily-${today}`);
             } catch (error) {
                 console.log('Could not update global counters');
             }
