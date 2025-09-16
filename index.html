@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLASSIFIED SYSTEM</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: 'Orbitron', monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00ff00;
+            overflow: hidden;
+        }
+        
+        .console-container {
+            background: linear-gradient(145deg, #3a3a3a, #1f1f1f);
+            border: 3px solid #555;
+            border-radius: 15px;
+            padding: 60px 80px;
+            box-shadow: 
+                0 0 50px rgba(255, 0, 0, 0.3),
+                inset 0 0 30px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            position: relative;
+        }
+        
+        .warning-strip {
+            background: repeating-linear-gradient(
+                45deg,
+                #ffff00,
+                #ffff00 10px,
+                #000 10px,
+                #000 20px
+            );
+            height: 8px;
+            margin: -60px -80px 40px -80px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .classification {
+            color: #ff0000;
+            font-weight: 900;
+            font-size: 14px;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+        
+        .system-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #ffffff;
+            text-shadow: 0 0 15px #ffffff;
+        }
+        
+        .status-lights {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .status-light {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            position: relative;
+        }
+        
+        .status-light.armed {
+            background: #ff0000;
+            box-shadow: 0 0 20px #ff0000;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .status-light.ready {
+            background: #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        
+        .status-light.standby {
+            background: #ffff00;
+            box-shadow: 0 0 20px #ffff00;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .button-housing {
+            background: radial-gradient(circle, #2a2a2a, #1a1a1a);
+            border: 4px solid #444;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            margin: 40px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.8),
+                0 0 40px rgba(255, 0, 0, 0.2);
+        }
+        
+        .safety-cover {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #555, #333);
+            border: 2px solid #666;
+            border-radius: 8px 8px 0 0;
+            padding: 8px 15px;
+            font-size: 10px;
+            color: #ffff00;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .safety-cover.open {
+            transform: translateX(-50%) rotateX(90deg);
+            transform-origin: bottom;
+        }
+        
+        .launch-button {
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle at 30% 30%, #ff4444, #cc0000, #990000);
+            border: 4px solid #660000;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .launch-button.active {
+            opacity: 1;
+            pointer-events: all;
+            box-shadow: 
+                0 0 30px rgba(255, 0, 0, 0.6),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        .launch-button:hover.active {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 50px rgba(255, 0, 0, 0.8),
+                inset 0 0 25px rgba(255, 255, 255, 0.3);
+        }
+        
+        .launch-button:active.active {
+            transform: scale(0.95);
+        }
+        
+        .warnings {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #ffff00;
+            line-height: 1.6;
+        }
+        
+        .warning-line {
+            margin: 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .disclaimer {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 8px;
+            color: #444;
+            opacity: 0.6;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            margin: 15% auto;
+            padding: 40px;
+            border: 3px solid #ff0000;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
+        }
+        
+        .modal h2 {
+            color: #ff0000;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            margin-top: -10px;
+        }
+        
+        .close:hover {
+            color: #fff;
+        }
+        
+        .counter {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            font-size: 12px;
+            color: #00ff00;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="counter">
+        TODAY'S ACTIVATIONS: <span id="dailyCount">0</span><br>
+        TOTAL ACTIVATIONS: <span id="clickCount">0</span>
+    </div>
+    
+    <div class="console-container">
+        <div class="warning-strip"></div>
+        
+        <div class="classification">
+            ★ TOP SECRET - COSMIC CLEARANCE REQUIRED ★
+        </div>
+        
+        <div class="system-title">
+            STRATEGIC DEFENSE INITIATIVE
+        </div>
+        
+        <div class="status-lights">
+            <div class="status-light armed" title="ARMED"></div>
+            <div class="status-light ready" title="READY"></div>
+            <div class="status-light standby" title="STANDBY"></div>
+        </div>
+        
+        <div class="button-housing">
+            <div class="safety-cover" id="safetyCover" onclick="openCover()">
+                LIFT SAFETY COVER
+            </div>
+            <button class="launch-button" id="launchButton" onclick="buttonPress()">
+                INITIATE<br>SEQUENCE
+            </button>
+        </div>
+        
+        <div class="warnings">
+            <div class="warning-line">⚠ AUTHORIZED PERSONNEL ONLY ⚠</div>
+            <div class="warning-line">DUAL KEY AUTHENTICATION BYPASSED</div>
+            <div class="warning-line">DO NOT PRESS UNLESS ABSOLUTELY NECESSARY</div>
+        </div>
+        
+        <div class="disclaimer">
+            This button serves no functional purpose
+        </div>
+    </div>
+    
+    <div id="uselessModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>SYSTEM MESSAGE</h2>
+            <p id="modalMessage">USELESS</p>
+        </div>
+    </div>
+    
+    <script>
+        let clickCount = 0;
+        let dailyCount = 0;
+        let coverOpen = false;
+        let lastResetDate = null;
+        
+        function getTodaysDate() {
+            return new Date().toDateString();
+        }
+        
+        function checkDailyReset() {
+            const today = getTodaysDate();
+            if (lastResetDate !== today) {
+                dailyCount = 0;
+                lastResetDate = today;
+            }
+        }
+        
+        function openCover() {
+            if (!coverOpen) {
+                document.getElementById('safetyCover').classList.add('open');
+                document.getElementById('launchButton').classList.add('active');
+                coverOpen = true;
+                setTimeout(() => {
+                    document.getElementById('safetyCover').style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        function buttonPress() {
+            if (!coverOpen) return;
+            
+            clickCount++;
+            dailyCount++;
+            document.getElementById('clickCount').textContent = clickCount;
+            document.getElementById('dailyCount').textContent = dailyCount;
+            
+            // Random chance for rickroll (1 in 50 for demo purposes, you can adjust)
+            if (Math.random() < 0.02) {
+                // Rickroll time!
+                document.getElementById('modalMessage').innerHTML = 
+                    'LAUNCH INITIATED...<br><br><iframe width="280" height="157" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" frameborder="0" allowfullscreen></iframe>';
+            } else {
+                document.getElementById('modalMessage').textContent = 'USELESS';
+            }
+            
+            document.getElementById('uselessModal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('uselessModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            let modal = document.getElementById('uselessModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Load click count from memory and check for daily reset
+        window.onload = function() {
+            // In a real implementation, you might want to fetch this from a server
+            clickCount = Math.floor(Math.random() * 1337) + 42; // Random starting number for demo
+            dailyCount = Math.floor(Math.random() * 89) + 1; // Random daily count for demo
+            lastResetDate = getTodaysDate();
+            
+            checkDailyReset();
+            document.getElementById('clickCount').textContent = clickCount;
+            document.getElementById('dailyCount').textContent = dailyCount;
+            
+            // Set up midnight reset check (runs every minute to catch the transition)
+            setInterval(checkDailyReset, 60000);
+        }
+    </script>
+</body>
+</html>
